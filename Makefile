@@ -12,4 +12,8 @@ clean:
 run:$(BIN)
 	$^
 
+yolov5_det: 
+	$(MAKE) -f yolov5_build/Makefile yolov5_det
+.PHONY : yolov5_det
+
 .PHONY: .clean .build .run
