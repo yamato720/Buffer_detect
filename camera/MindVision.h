@@ -38,7 +38,7 @@ private:
     tSdkFrameHead           frameHead;
     BYTE*                   pbyBuffer=NULL;
     int                     exposure=10;                      //单位毫秒
-    char*                   load="/home/nvidia/Projects/Buffer_detect/camera/Data/bubing.config";
+    char*                   load="../camera/Data/bubing.config";
     int                     gamma=100;
     Timer                   clock;
 };
