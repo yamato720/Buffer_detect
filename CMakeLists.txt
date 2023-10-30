@@ -26,14 +26,18 @@ link_directories(/home/nvidia/TensorRT-8.2.5.1/lib/)
 # 包含项目源代码和插件代码的头文件路径
 include_directories(${PROJECT_SOURCE_DIR}/src/)
 include_directories(${PROJECT_SOURCE_DIR}/plugin/)
+include_directories(${PROJECT_SOURCE_DIR}/camera/)
+include_directories(${PROJECT_SOURCE_DIR}/assert/Timer)
 
 # 获取源代码文件列表
-file(GLOB_RECURSE SRCS ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.cu)
+file(GLOB_RECURSE SRCS ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.cu ${PROJECT_SOURCE_DIR}/camera/*.cpp)
 file(GLOB_RECURSE PLUGIN_SRCS ${PROJECT_SOURCE_DIR}/plugin/*.cu)
 
 # 创建一个名为"myplugins"的共享库并链接到nvinfer和cudart库
 add_library(myplugins SHARED ${PLUGIN_SRCS})
 target_link_libraries(myplugins nvinfer cudart)
+add_subdirectory(camera)
+add_subdirectory(assert)
 
 # 查找并包含OpenCV
 find_package(OpenCV)
@@ -45,6 +49,8 @@ target_link_libraries(yolov5_det nvinfer)
 target_link_libraries(yolov5_det cudart)
 target_link_libraries(yolov5_det myplugins)
 target_link_libraries(yolov5_det ${OpenCV_LIBS})
+target_link_libraries(yolov5_det camera)
+target_link_libraries(yolov5_det timer)
 
 # # 创建可执行文件"yolov5_cls"，并链接所需的库
 # add_executable(yolov5_cls yolov5_cls.cpp ${SRCS})

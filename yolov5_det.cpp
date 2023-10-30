@@ -8,6 +8,7 @@
 #include <iostream>
 #include <chrono>
 #include <cmath>
+#include "camera/MindVision.h"
 
 using namespace nvinfer1;
 
@@ -133,8 +134,8 @@ void deserialize_engine(std::string& engine_name, IRuntime** runtime, ICudaEngin
 
 int main(int argc, char** argv) {
   cudaSetDevice(kGpuId);
-  cv::VideoCapture cap;
-  
+  // cv::VideoCapture cap;
+  MindVision cap;
   std::string wts_name = "-d";
   std::string engine_name = "../model/yolov5n.engine";
   bool is_p6 = false;
@@ -179,7 +180,8 @@ int main(int argc, char** argv) {
 
   // batch predict
   // cap.open("../../testvideo/0.mp4");
-  cap.open(0);
+  // cap.open(0);
+
   struct timeval t1, t2;
   double timeuse;
   while(true){
@@ -193,16 +195,17 @@ int main(int argc, char** argv) {
     //   img_name_batch.push_back(file_names[j]);
     // }
     cv::Mat img;
-    cap >> img;
+    // cap >> img;
+    cap.getImage(img);
     // if(img.empty())
     // {
     //   std::cout << "NO!!" << std::endl;
     //   break;
     // }
-    if(img.empty()){
-      cap.set(cv::CAP_PROP_POS_FRAMES, 0);
-      continue;
-    }
+    // if(img.empty()){
+    //   cap.set(cv::CAP_PROP_POS_FRAMES, 0);
+    //   continue;
+    // }
     img_batch.push_back(img);
     img_name_batch.push_back("1");
     // Preprocess
@@ -222,7 +225,7 @@ int main(int argc, char** argv) {
     draw_bbox(img_batch, res_batch);
     gettimeofday(&t2, NULL);
     timeuse = (t2.tv_sec - t1.tv_sec) + (double)(t2.tv_usec - t1.tv_usec)/1000000.0;
-    // cv::imshow("cap", img_batch[0]);
+    cv::imshow("cap", img_batch[0]);
     std::cout << "fps:" <<(1.0/timeuse)<<std::endl;
     img_batch.clear();
     res_batch.clear();
@@ -230,7 +233,7 @@ int main(int argc, char** argv) {
     // for (size_t j = 0; j < img_batch.size(); j++) {
     //   cv::imwrite("_" + img_name_batch[j], img_batch[j]);
     // }
-    // if(cv::waitKey(1)==27)break;
+    if(cv::waitKey(1)==27)break;
   }
 
   // Release stream and buffers
