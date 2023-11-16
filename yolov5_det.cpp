@@ -16,7 +16,6 @@ static Logger gLogger;
 const static int kOutputSize = kMaxNumOutputBbox * sizeof(Detection) / sizeof(float) + 1;
 
 bool parse_args(int argc, char** argv, std::string& wts, std::string& engine, bool& is_p6, float& gd, float& gw, std::string& img_dir) {
-  if (argc < 4) return false;
   if (std::string(argv[1]) == "-s" && (argc == 5 || argc == 7)) {
     wts = std::string(argv[2]);
     engine = std::string(argv[3]);
@@ -45,9 +44,8 @@ bool parse_args(int argc, char** argv, std::string& wts, std::string& engine, bo
     if (net.size() == 2 && net[1] == '6') {
       is_p6 = true;
     }
-  } else if (std::string(argv[1]) == "-d" && argc == 4) {
+  } else if (std::string(argv[1]) == "-d" && argc == 3) {
     engine = std::string(argv[2]);
-    img_dir = std::string(argv[3]);
   } else {
     return false;
   }
@@ -94,6 +92,7 @@ void serialize_engine(unsigned int max_batchsize, bool& is_p6, float& gd, float&
   assert(serialized_engine != nullptr);
 
   // Save engine to file
+  engine_name = "../engine/" + engine_name;
   std::ofstream p(engine_name, std::ios::binary);
   if (!p) {
     std::cerr << "Could not open plan output file" << std::endl;
@@ -135,26 +134,28 @@ void deserialize_engine(std::string& engine_name, IRuntime** runtime, ICudaEngin
 int main(int argc, char** argv) {
   cudaSetDevice(kGpuId);
   // cv::VideoCapture cap;
-  MindVision cap;
-  std::string wts_name = "-d";
-  std::string engine_name = "../model/yolov5n.engine";
+  
+  std::string wts_name = "";
+  std::string engine_name = "";
   bool is_p6 = false;
   float gd = 0.0f, gw = 0.0f;
-  // std::string img_dir;
+  std::string img_dir;
 
-  // if (!parse_args(argc, argv, wts_name, engine_name, is_p6, gd, gw, img_dir)) {
-  //   std::cerr << "arguments not right!" << std::endl;
-  //   std::cerr << "./yolov5_det -s [.wts] [.engine] [n/s/m/l/x/n6/s6/m6/l6/x6 or c/c6 gd gw]  // serialize model to plan file" << std::endl;
-  //   std::cerr << "./yolov5_det -d [.engine] ../images  // deserialize plan file and run inference" << std::endl;
-  //   return -1;
-  // }
+  if (!parse_args(argc, argv, wts_name, engine_name, is_p6, gd, gw, img_dir)) {
+    std::cerr << "arguments not right!" << std::endl;
+    std::cerr << "./yolov5_det -s [.wts] [.engine] [n/s/m/l/x/n6/s6/m6/l6/x6 or c/c6 gd gw]  // serialize model to plan file" << std::endl;
+    std::cerr << "./yolov5_det -d [.engine] // deserialize plan file and run inference, engine must be in dir engine" << std::endl;
+    return -1;
+  }
 
   // Create a model using the API directly and serialize it to a file
-  // if (!wts_name.empty()) {
-  //   serialize_engine(kBatchSize, is_p6, gd, gw, wts_name, engine_name);
-  //   return 0;
-  // }
-
+  if (!wts_name.empty()) {
+    wts_name = "../wts/" + wts_name;
+    serialize_engine(kBatchSize, is_p6, gd, gw, wts_name, engine_name);
+    return 0;
+  }
+  MindVision cap;
+  engine_name = "../engine/" + engine_name;
   // Deserialize the engine from file
   IRuntime* runtime = nullptr;
   ICudaEngine* engine = nullptr;
