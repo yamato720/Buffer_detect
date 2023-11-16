@@ -1,9 +1,9 @@
-#include "cuda_utils.h"
-#include "logging.h"
-#include "utils.h"
-#include "preprocess.h"
-#include "postprocess.h"
-#include "model.h"
+#include "src/cuda_utils.h"
+#include "src/logging.h"
+#include "src/utils.h"
+#include "src/preprocess.h"
+#include "src/postprocess.h"
+#include "src/model.h"
 #include<sys/time.h>
 #include <iostream>
 #include <chrono>
